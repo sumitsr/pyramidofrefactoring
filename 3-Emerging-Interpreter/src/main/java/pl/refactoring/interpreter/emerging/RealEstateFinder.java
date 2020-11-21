@@ -7,6 +7,7 @@ package pl.refactoring.interpreter.emerging;
 import pl.refactoring.interpreter.emerging.specs.AndSpec;
 import pl.refactoring.interpreter.emerging.specs.BelowAreaSpec;
 import pl.refactoring.interpreter.emerging.specs.MaterialSpec;
+import pl.refactoring.interpreter.emerging.specs.PlacementSpec;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,26 +33,14 @@ public class RealEstateFinder {
 
     public List<RealEstate> byMaterial(EstateMaterial material){
         return bySpec(new MaterialSpec(material));
-
     }
 
     public List<RealEstate> byMaterialBelowArea(EstateMaterial material, float maxBuildingArea){
-        Spec materialSpec = new MaterialSpec(material);
-        Spec belowAreaSpec = new BelowAreaSpec(maxBuildingArea);
-
-        return bySpec(new AndSpec(materialSpec, belowAreaSpec));
+        return bySpec(new AndSpec(new MaterialSpec(material), new BelowAreaSpec(maxBuildingArea)));
     }
 
     public List<RealEstate> byPlacement(EstatePlacement placement){
-        List<RealEstate> foundRealEstates = new ArrayList<>();
-
-        Iterator<RealEstate> estates = repository.iterator();
-        while (estates.hasNext()) {
-            RealEstate estate = estates.next();
-            if (estate.getPlacement().equals(placement))
-                foundRealEstates.add(estate);
-        }
-        return foundRealEstates;
+        return bySpec(new PlacementSpec(placement));
     }
 
     public List<RealEstate> byAvoidingPlacement(EstatePlacement placement){
@@ -60,7 +49,7 @@ public class RealEstateFinder {
         Iterator<RealEstate> estates = repository.iterator();
         while (estates.hasNext()) {
             RealEstate estate = estates.next();
-            if (! estate.getPlacement().equals(placement))
+            if (!new PlacementSpec(placement).isSatisfiedBy(estate))
                 foundRealEstates.add(estate);
         }
         return foundRealEstates;
@@ -96,9 +85,10 @@ public class RealEstateFinder {
         Iterator<RealEstate> estates = repository.iterator();
         while (estates.hasNext()) {
             RealEstate estate = estates.next();
-            if (estate.getType().equals(type) && estate.getPlacement().equals(placement) && estate.getMaterial().equals(material))
+            if (estate.getType().equals(type) && new PlacementSpec(placement).isSatisfiedBy(estate) && estate.getMaterial().equals(material))
                 foundRealEstates.add(estate);
         }
         return foundRealEstates;
     }
+
 }
