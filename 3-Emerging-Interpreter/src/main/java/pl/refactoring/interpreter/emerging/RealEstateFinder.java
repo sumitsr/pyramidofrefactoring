@@ -4,10 +4,7 @@
  */
 package pl.refactoring.interpreter.emerging;
 
-import pl.refactoring.interpreter.emerging.specs.AndSpec;
-import pl.refactoring.interpreter.emerging.specs.BelowAreaSpec;
-import pl.refactoring.interpreter.emerging.specs.MaterialSpec;
-import pl.refactoring.interpreter.emerging.specs.PlacementSpec;
+import pl.refactoring.interpreter.emerging.specs.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,15 +41,9 @@ public class RealEstateFinder {
     }
 
     public List<RealEstate> byAvoidingPlacement(EstatePlacement placement){
-        List<RealEstate> foundRealEstates = new ArrayList<>();
-
-        Iterator<RealEstate> estates = repository.iterator();
-        while (estates.hasNext()) {
-            RealEstate estate = estates.next();
-            if (!new PlacementSpec(placement).isSatisfiedBy(estate))
-                foundRealEstates.add(estate);
-        }
-        return foundRealEstates;
+        Spec spec = new PlacementSpec(placement);
+        Spec notSpec = new NotSpec(spec);
+        return bySpec(notSpec);
     }
 
     public List<RealEstate> byAreaRange(float minArea, float maxArea){
