@@ -47,27 +47,11 @@ public class RealEstateFinder {
     }
 
     public List<RealEstate> byAreaRange(float minArea, float maxArea){
-        List<RealEstate> foundRealEstates = new ArrayList<>();
-
-        Iterator<RealEstate> estates = repository.iterator();
-        while (estates.hasNext()) {
-            RealEstate estate = estates.next();
-            if (estate.getBuildingArea() >= minArea && estate.getBuildingArea() <= maxArea)
-                foundRealEstates.add(estate);
-        }
-        return foundRealEstates;
+        return bySpec(new AreaRangeSpec(minArea, maxArea));
     }
 
     public List<RealEstate> byType(EstateType type){
-        List<RealEstate> foundRealEstates = new ArrayList<>();
-
-        Iterator<RealEstate> estates = repository.iterator();
-        while (estates.hasNext()) {
-            RealEstate estate = estates.next();
-            if (estate.getType().equals(type))
-                foundRealEstates.add(estate);
-        }
-        return foundRealEstates;
+        return bySpec(new TypeSpec(type));
     }
 
     public List<RealEstate> byVerySpecificCriteria(EstateType type, EstatePlacement placement, EstateMaterial material){
@@ -76,7 +60,9 @@ public class RealEstateFinder {
         Iterator<RealEstate> estates = repository.iterator();
         while (estates.hasNext()) {
             RealEstate estate = estates.next();
-            if (estate.getType().equals(type) && new PlacementSpec(placement).isSatisfiedBy(estate) && estate.getMaterial().equals(material))
+            if (new TypeSpec(type).isSatisfiedBy(estate) &&
+                    new PlacementSpec(placement).isSatisfiedBy(estate) &&
+                    new MaterialSpec(material).isSatisfiedBy(estate))
                 foundRealEstates.add(estate);
         }
         return foundRealEstates;
